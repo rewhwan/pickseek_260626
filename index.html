@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>픽식 파이 오프닝 테스트</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell" id="app">
+      <section class="opening-screen" id="openingScreen" aria-label="파이 오프닝">
+        <div class="scene-topbar">
+          <span class="scene-label">Pickseek</span>
+        </div>
+
+        <div class="character-stage" aria-hidden="true">
+          <div class="book-light book-light-one"></div>
+          <div class="book-light book-light-two"></div>
+          <img class="pai-character" id="paiCharacter" src="assets/pai-cutout-clean.png" alt="" />
+        </div>
+
+        <section class="auth-challenge is-hidden" id="authChallenge" aria-label="솔루션 퀴즈">
+          <div class="question-section">
+            <p class="question-label">Q.</p>
+            <h2>전화가 들어오면 AI가 고객의 목적을 미리 예측해 CS 대응을 돕는 픽스커뮤니케이션의 AI 콜분석 솔루션, 그 이름은?</h2>
+          </div>
+          <form class="auth-form" id="authForm">
+            <div class="answer-section">
+              <label class="auth-label" for="authInput">정답 입력</label>
+              <input
+                class="auth-input"
+                id="authInput"
+                type="text"
+                autocomplete="off"
+                placeholder="정답 입력"
+                aria-describedby="authMessage authHint"
+              />
+              <p class="auth-message" id="authMessage" aria-live="assertive"></p>
+              <p class="auth-hint is-hidden" id="authHint">힌트: 공식 사이트에서는 “전화벨이 울리면 고객의 목적을 알려주는 AI 콜분석 솔루션”이라고 소개돼요.</p>
+            </div>
+            <div class="auth-actions">
+              <button class="ghost-button" type="button" id="authPreviousButton">이전</button>
+              <button class="primary-button" type="submit">정답 확인</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="dialogue-panel" aria-live="polite">
+          <div class="speaker-row">
+            <span class="speaker-name" id="speakerName">파이</span>
+          </div>
+          <p class="dialogue-text" id="dialogueText" aria-live="polite"></p>
+          <div class="dialogue-actions">
+            <button class="ghost-button" type="button" id="previousButton">이전</button>
+            <button class="primary-button" type="button" id="nextButton">다음</button>
+          </div>
+        </section>
+      </section>
+
+      <section class="home-screen is-hidden" id="homeScreen" aria-label="픽식 안내">
+        <header class="home-header">
+          <img src="assets/pai-cutout-clean.png" alt="파이" />
+          <div>
+            <p>파이 연결 완료</p>
+            <h1>박람회 정보와 오늘 일정을 확인해보세요.</h1>
+          </div>
+        </header>
+
+        <div class="quick-grid">
+          <article>
+            <span>일정</span>
+            <strong>08:00 집결부터 16:30 소감 공유까지</strong>
+          </article>
+          <article>
+            <span>관람</span>
+            <strong>서울국제도서전과 별마당 도서관 둘러보기</strong>
+          </article>
+          <article>
+            <span>픽식</span>
+            <strong>점심 이후 준비된 프로그램 진행</strong>
+          </article>
+        </div>
+
+        <button class="secondary-button" type="button" id="backToOpeningButton">오프닝 다시보기</button>
+      </section>
+    </main>
+
+    <script src="src/app.js"></script>
+  </body>
+</html>
