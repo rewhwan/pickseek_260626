@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>픽식 가이드</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="styles.css?v=fair-tour-cookie" />
+    <link rel="stylesheet" href="styles.css?v=lost-page-mission" />
   </head>
   <body>
     <main class="app-shell" id="app">
@@ -72,11 +72,11 @@
             <div class="dashboard-status" aria-label="픽식 진행 상태">
               <div>
                 <p class="eyebrow">Today Quest</p>
-                <h2>도서전 탐험 준비 완료</h2>
+                <h2 id="missionDashboardTitle">잃어버린 책의 결말 복구 중</h2>
               </div>
               <div class="quest-level" aria-label="오늘의 진행 단계">
                 <span>LV</span>
-                <strong>01</strong>
+                <strong id="missionLevelText">01</strong>
               </div>
             </div>
 
@@ -86,45 +86,27 @@
               </div>
               <div class="pai-dashboard-copy">
                 <span>PAI ONLINE</span>
-                <strong>오늘의 가이드가 연결됐어요</strong>
-                <p>일정, 도서전 관람, 소감 공유까지 흐름을 놓치지 않게 안내할게요.</p>
+                <strong id="paiMissionTitle">기록 수집가 모드가 열렸어요</strong>
+                <p id="paiMissionText">구매한 책을 시작점으로 사라진 결말의 조각을 하나씩 복구해요.</p>
               </div>
             </article>
 
             <div class="quest-meter" aria-label="오늘 진행률">
               <div class="quest-meter-row">
                 <span>오늘 진행률</span>
-                <strong>0 / 4</strong>
+                <strong id="missionProgressText">0 / 5</strong>
               </div>
               <div class="quest-meter-track" aria-hidden="true">
-                <span></span>
+                <span id="missionProgressBar"></span>
               </div>
             </div>
 
-            <div class="mission-grid" aria-label="오늘 미션 목록">
-              <article class="mission-card is-current">
-                <span>Stage 01</span>
-                <strong>08:00 화이트 집결</strong>
-                <p>출발 전 인원 확인과 오늘 동선을 정리해요.</p>
-              </article>
-              <article class="mission-card">
-                <span>Stage 02</span>
-                <strong>10:00 서울국제도서전</strong>
-                <p>부스, 신간, 프로그램을 둘러보며 콘텐츠 흐름을 살펴봐요.</p>
-              </article>
-              <article class="mission-card">
-                <span>Stage 03</span>
-                <strong>13:30 픽식 프로그램</strong>
-                <p>점심 이후 준비된 메인 활동을 진행해요.</p>
-              </article>
-              <article class="mission-card">
-                <span>Stage 04</span>
-                <strong>15:30 소감 공유</strong>
-                <p>인상 깊었던 책, 부스, 장면을 함께 나눠요.</p>
-              </article>
-            </div>
+            <section class="active-mission" id="activeMission" aria-live="polite"></section>
+
+            <div class="mission-grid" id="missionList" aria-label="오늘 미션 목록"></div>
 
             <button class="secondary-button dashboard-replay" type="button" id="backToOpeningButton">오프닝 다시보기</button>
+            <button class="ghost-button mission-reset-button" type="button" id="missionResetButton">미션 진행 초기화</button>
           </section>
 
           <section class="tab-panel" id="timetableTabPanel" role="tabpanel" aria-labelledby="timetableTabButton" data-tab-panel="timetable" hidden>
@@ -325,6 +307,6 @@
       </section>
     </main>
 
-    <script src="src/app.js?v=fair-tour-cookie"></script>
+    <script src="src/app.js?v=lost-page-mission"></script>
   </body>
 </html>
