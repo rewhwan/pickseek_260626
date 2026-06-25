@@ -229,12 +229,12 @@ async function handler(request, response) {
     const book = await lookupBookByIsbn(isbn);
 
     if (!book) {
-      sendJson(response, 404, {
+      sendJson(response, 200, {
         ok: false,
         error: "BOOK_NOT_FOUND",
         manualRequired: true,
         isbn,
-        message: "책 정보를 찾지 못했습니다. 도서전 첫 출시 책일 수 있으니 직접 입력으로 진행해 주세요."
+        message: "책 정보를 찾지 못했습니다. ISBN을 다시 확인해 주세요."
       });
       return;
     }

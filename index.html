@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>픽식 가이드</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="styles.css?v=20260625-scroll-lock" />
+    <link rel="stylesheet" href="styles.css?v=20260626-complete-meeting-place" />
   </head>
   <body>
     <main class="app-shell" id="app">
@@ -33,7 +33,7 @@
                 id="authInput"
                 type="text"
                 autocomplete="off"
-                placeholder="정답 입력"
+                placeholder=""
                 aria-describedby="authMessage authHint"
               />
               <p class="auth-message" id="authMessage" aria-live="assertive"></p>
@@ -91,19 +91,9 @@
               </div>
             </article>
 
-            <div class="quest-meter" aria-label="오늘 진행률">
-              <div class="quest-meter-row">
-                <span>오늘 진행률</span>
-                <strong id="missionProgressText">0 / 5</strong>
-              </div>
-              <div class="quest-meter-track" aria-hidden="true">
-                <span id="missionProgressBar"></span>
-              </div>
-            </div>
-
             <section class="active-mission" id="activeMission" aria-live="polite"></section>
 
-            <div class="mission-grid" id="missionList" aria-label="오늘 미션 목록"></div>
+            <div class="mission-grid" id="missionList" aria-label="현재 미션 정보"></div>
 
             <button class="secondary-button dashboard-replay" type="button" id="backToOpeningButton">오프닝 다시보기</button>
             <button class="ghost-button mission-reset-button" type="button" id="missionResetButton">미션 진행 초기화</button>
@@ -307,6 +297,6 @@
       </section>
     </main>
 
-    <script src="src/app.js?v=20260625-scroll-lock"></script>
+    <script src="src/app.js?v=20260626-complete-meeting-place"></script>
   </body>
 </html>

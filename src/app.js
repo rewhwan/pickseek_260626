@@ -52,12 +52,71 @@ const openingScenes = [
   }
 ];
 
+const missionOpeningScenes = [
+  {
+    id: "mission-opening-01",
+    speaker: "파이",
+    emotion: "happy",
+    text: "좋아, 메인 미션이 열렸어요. 지금부터 내가 읽고 싶은 책을 찾는 여정을 함께 안내할게요.",
+    action: "next"
+  },
+  {
+    id: "mission-opening-02",
+    speaker: "파이",
+    emotion: "thinking",
+    text: "오늘 고르는 책 한 권이 마지막 페이지를 복구하는 첫 단서가 됩니다.",
+    action: "next"
+  },
+  {
+    id: "mission-opening-03",
+    speaker: "파이",
+    emotion: "happy",
+    text: "책장을 천천히 살피고, 마음이 먼저 반응하는 책을 찾아봐요. 준비됐다면 미션을 시작해요.",
+    action: "missionStart",
+    buttonLabel: "미션 시작"
+  }
+];
+
+const missionCompletionScenes = [
+  {
+    id: "mission-complete-01",
+    speaker: "파이",
+    emotion: "happy",
+    text: "모든 미션을 클리어했어요! 축하해요!",
+    action: "next"
+  },
+  {
+    id: "mission-complete-02",
+    speaker: "파이",
+    emotion: "happy",
+    text: "오늘 픽식을 통해서 읽고 싶은 책을 찾았기를 바라요.",
+    action: "next"
+  },
+  {
+    id: "mission-complete-03",
+    speaker: "파이",
+    emotion: "normal",
+    text: "데릭에게 픽챗 혹은 콜리스를 사용하여 미션을 완료하였다고 알려주세요.",
+    action: "next"
+  },
+  {
+    id: "mission-complete-04",
+    speaker: "파이",
+    emotion: "normal",
+    text: "남은 시간동안은 마저 박람회를 둘러보거나 코엑스를 둘러보며 쉬는 시간을 가져보세요.",
+    action: "missionComplete",
+    buttonLabel: "확인"
+  }
+];
+
 const typingDelay = 34;
 const introCompletionStorageKey = "pickseek_intro_completed";
 const fairTourCompletionStorageKey = "pickseek_fair_tour_seen";
 const missionStorageKey = "pickseek_mission_state";
 const missionUnlockStorageKey = "pickseek_mission_unlocked";
 const missionIntroStorageKey = "pickseek_mission_intro_seen";
+const missionCompletionStorageKey = "pickseek_mission_completion_seen";
+const missionFlowVersion = 7;
 const missions = [
   {
     id: "mission-01",
@@ -66,12 +125,12 @@ const missions = [
     title: "책 등록과 정보 조회",
     place: "서울국제도서전 또는 별마당 도서관",
     time: "약 5분",
-    story: "당신의 책에서 마지막 페이지 신호를 찾기 위해 ISBN 데이터베이스에 접속합니다.",
-    prompt: "오늘 구매한 책의 ISBN을 입력하세요. 조회 결과가 없으면 다음 단계에서 직접 책 정보를 확정할 수 있어요.",
+    story: "마음에 드는 책을 고르고 구매한 뒤, 책 안의 ISBN 신호를 파이에게 알려주세요.",
+    prompt: "별마당 도서관 혹은 도서전에서 마음에 드는 책을 구매한 뒤 ISBN을 입력하세요.",
     hint: "책 뒤표지나 판권면에서 10자리 또는 13자리 ISBN을 찾을 수 있어요. 하이픈은 있어도 괜찮습니다.",
-    placeholder: "예: 978-89-12345-67-8",
+    placeholder: "",
     validator: { type: "isbnLookup" },
-    success: "ISBN 신호를 확인했습니다. 파이가 책 정보 데이터베이스를 조회했어요."
+    success: "파이가 책 정보 데이터베이스를 조회했어요."
   },
   {
     id: "mission-02",
@@ -80,54 +139,51 @@ const missions = [
     title: "책 정보 확정",
     place: "현재 위치",
     time: "약 3분",
-    story: "조회된 책 정보가 맞는지 확인합니다. 마지막 퍼즐은 여기서 확정한 제목을 재료로 사용합니다.",
-    prompt: "조회된 책이 맞다면 책 제목을 그대로 입력하세요. 정보가 없거나 다르면 `제목 / 저자 / 출판사 / 출간연도` 형식으로 입력하세요.",
-    hint: "예: 미움받을 용기 / 기시미 이치로 / 인플루엔셜 / 2014",
-    placeholder: "책 제목 또는 제목 / 저자 / 출판사 / 출간연도",
+    story: "조회된 책 정보가 맞는지 확인합니다.",
+    prompt: "아래 책 정보가 오늘 구매한 책과 맞으면 확인을 누르세요. 틀리면 다시입력으로 ISBN을 다시 입력합니다.",
+    hint: "제목, 저자, 출판사, 출간연도를 실물 책과 비교해 주세요.",
+    placeholder: "",
     validator: { type: "bookConfirm" },
     success: "책의 기본 정보가 확정되었습니다. 제목 신호가 저장됐어요."
   },
   {
     id: "mission-03",
     chapter: "STAGE 03",
-    fragment: "PUBLISHER",
-    title: "출판사의 문",
-    place: "책 표지 또는 판권면",
-    time: "약 5분",
-    story: "책을 세상에 내보낸 이름이 두 번째 신호입니다.",
-    prompt: "확정된 책 정보 또는 실물 책에서 출판사명을 찾아 입력하세요.",
-    hint: "공백은 달라도 괜찮아요. 예를 들어 `한빛 미디어`와 `한빛미디어`는 같은 답으로 판단합니다.",
-    placeholder: "출판사명",
-    validator: { type: "bookMeta", field: "publisher" },
-    success: "출판사 신호가 저장되었습니다."
+    fragment: "CALL",
+    title: "콜리스 장애 기록",
+    place: "현재 위치",
+    time: "약 10분",
+    story: "콜리스에 문제가 생겼습니다. 파이가 남긴 교환대 기록에서 어긋난 지점을 찾아야 합니다.",
+    prompt: "콜리스에 문제가 생겼습니다. 아래 기록을 보고 어디에 문제가 있는지 적어주세요.",
+    hint: "전화는 모두 다른 곳에서 왔지만, 문 하나는 두 번 열렸습니다.",
+    placeholder: "",
+    validator: { type: "switchboardCode" },
+    success: "교환대 기록이 해독되었습니다.",
+    clueRows: [
+      ["제이슨", "070-5235-8001", "3004"],
+      ["시몬", "070-5235-8002", "3002"],
+      ["맛나", "070-5235-8003", "3003"],
+      ["라이언", "070-5235-8004", "3004"],
+      ["지미", "070-5235-8005", "3100"],
+      ["단테", "070-5235-8006", "3101"],
+      ["데릭", "070-5235-8007", "3102"],
+      ["바라", "070-5235-8008", "3103"],
+      ["크롬", "070-5235-8009", "3005, 3006"]
+    ]
   },
   {
     id: "mission-04",
-    chapter: "STAGE 04",
-    fragment: "DECODE",
-    title: "책 정보 해독",
-    place: "현재 위치",
-    time: "약 10분",
-    story: "책 정보 안에 숨은 숫자를 계산해 중간 암호를 엽니다.",
-    prompt: "ISBN 마지막 4자리 숫자 합에 출판사명 글자 수와 출간연도 마지막 두 자리, 첫 저자명 글자 수를 모두 더하세요.",
-    hint: "공백을 뺀 출판사명과 첫 저자명을 기준으로 계산합니다. 예: ISBN 끝 1234면 숫자 합은 10입니다.",
-    placeholder: "예: 42",
-    validator: { type: "derivedPuzzle" },
-    success: "중간 암호가 해독되었습니다."
-  },
-  {
-    id: "mission-05",
     chapter: "FINAL",
-    fragment: "CODE",
-    title: "복구 코드와 마지막 페이지",
+    fragment: "TRACE",
+    title: "책의 문패와 시간",
     place: "최종 집결지",
     time: "약 10분",
-    story: "마지막 페이지는 앞서 입력한 제목, 출판사, 중간 암호가 맞물릴 때 복원됩니다.",
-    prompt: "중간 암호, 책 제목의 첫 글자, 출판사명 글자 수를 하이픈으로 이어 입력하세요.",
-    hint: "예: 중간 암호가 42, 책 제목이 미움받을 용기, 출판사명이 인플루엔셜이면 `42-미-5`입니다. 공백은 무시됩니다.",
-    placeholder: "예: 42-미-5",
-    validator: { type: "recoveryCode" },
-    success: "마지막 페이지가 복원되었습니다. 오늘 선택한 책의 신호가 결말을 열었어요."
+    story: "처음 등록한 책에는 두 개의 흔적이 남아 있습니다.",
+    prompt: "하나는 책을 세상에 내보낸 문패, 다른 하나는 그 책이 처음 시간을 얻은 해입니다. 문패의 글자 수를 먼저 적고, 시간의 마지막 두 조각을 이어 적어주세요.",
+    hint: "문패는 이름이고, 시간은 네 자리 숫자로 남아 있습니다.",
+    placeholder: "",
+    validator: { type: "bookTraceCode" },
+    success: "마지막 페이지가 복원되었습니다. 오늘 선택한 책의 흔적이 결말을 열었어요."
   }
 ];
 const fairTourSteps = [
@@ -168,6 +224,7 @@ const authPreviousButton = document.querySelector("#authPreviousButton");
 const backToOpeningButton = document.querySelector("#backToOpeningButton");
 const tabButtons = document.querySelectorAll("[data-tab-target]");
 const tabPanels = document.querySelectorAll("[data-tab-panel]");
+const homeTabPanel = document.querySelector("#homeTabPanel");
 const themeModalOpen = document.querySelector("#themeModalOpen");
 const themeModal = document.querySelector("#themeModal");
 const themeModalCloseButtons = document.querySelectorAll("[data-theme-modal-close]");
@@ -183,13 +240,12 @@ const missionDashboardTitle = document.querySelector("#missionDashboardTitle");
 const missionLevelText = document.querySelector("#missionLevelText");
 const paiMissionTitle = document.querySelector("#paiMissionTitle");
 const paiMissionText = document.querySelector("#paiMissionText");
-const missionProgressText = document.querySelector("#missionProgressText");
-const missionProgressBar = document.querySelector("#missionProgressBar");
 const activeMission = document.querySelector("#activeMission");
 const missionList = document.querySelector("#missionList");
 const missionResetButton = document.querySelector("#missionResetButton");
 
 let currentSceneIndex = 0;
+let activeOpeningScenes = openingScenes;
 let visibleText = "";
 let typingTimer = null;
 let isTyping = false;
@@ -243,7 +299,6 @@ function unlockMissionFromStartLink() {
 
   if (searchParams.get("mission") === "derrick9508") {
     writeStorageValue(missionUnlockStorageKey, "true");
-    removeStorageValue(missionIntroStorageKey);
   }
 }
 
@@ -257,6 +312,14 @@ function hasSeenMissionIntro() {
 
 function markMissionIntroSeen() {
   writeStorageValue(missionIntroStorageKey, "true");
+}
+
+function hasSeenMissionCompletion() {
+  return readStorageValue(missionCompletionStorageKey) === "true";
+}
+
+function markMissionCompletionSeen() {
+  writeStorageValue(missionCompletionStorageKey, "true");
 }
 
 function getDefaultBookSignals() {
@@ -283,6 +346,7 @@ function getDefaultBookSignals() {
 
 function getDefaultMissionState() {
   return {
+    missionFlowVersion,
     completedMissionIds: [],
     revealedHintIds: [],
     answers: {},
@@ -301,6 +365,11 @@ function readMissionState() {
 
   try {
     const parsedState = JSON.parse(rawState);
+
+    if (parsedState.missionFlowVersion !== missionFlowVersion) {
+      return getDefaultMissionState();
+    }
+
     return {
       ...getDefaultMissionState(),
       ...parsedState,
@@ -327,6 +396,7 @@ function resetMissionState() {
   removeStorageValue(missionStorageKey);
   removeStorageValue(missionUnlockStorageKey);
   removeStorageValue(missionIntroStorageKey);
+  removeStorageValue(missionCompletionStorageKey);
   renderMissionDashboard();
 }
 
@@ -386,41 +456,6 @@ function createBookSignalsFromBook(book, fallbackIsbn) {
   };
 }
 
-function parseManualBookInput(value, currentSignals) {
-  const parts = String(value || "")
-    .split("/")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  if (parts.length < 4) {
-    return null;
-  }
-
-  const [title, authorText, publisher, yearText] = parts;
-  const publishedYear = getYearFromValue(yearText);
-
-  if (!title || !publisher || !publishedYear) {
-    return null;
-  }
-
-  const isbnDigits = currentSignals.isbnDigits || normalizeIsbnDigits(currentSignals.isbn);
-
-  return {
-    ...currentSignals,
-    lookupStatus: currentSignals.lookupStatus === "found" ? "corrected" : "manual",
-    manualRequired: false,
-    confirmed: true,
-    isbnDigits,
-    isbnLast4: isbnDigits.slice(-4),
-    title,
-    authors: normalizeTextList(authorText),
-    publisher,
-    publishedYear,
-    publishedDate: currentSignals.publishedDate || publishedYear,
-    lookupSource: currentSignals.lookupSource || "manual"
-  };
-}
-
 function getCompactedLength(value) {
   return normalizeComparableAnswer(value).length;
 }
@@ -429,27 +464,19 @@ function getFirstCompactedChar(value) {
   return normalizeComparableAnswer(value).slice(0, 1);
 }
 
-function getPrimaryAuthor(bookSignals) {
-  return bookSignals.authors[0] || "";
+function getBookTraceCode(bookSignals) {
+  const publisherLength = getCompactedLength(bookSignals.publisher);
+  const yearTail = String(bookSignals.publishedYear || "").slice(-2);
+
+  return `${publisherLength}${yearTail}`;
 }
 
-function getDerivedPuzzleAnswer(bookSignals) {
-  const isbnDigitSum = String(bookSignals.isbnLast4 || "")
-    .split("")
-    .reduce((sum, digit) => sum + Number(digit || 0), 0);
-  const publisherLength = getCompactedLength(bookSignals.publisher);
-  const yearTail = Number(String(bookSignals.publishedYear || "").slice(-2) || 0);
-  const authorLength = getCompactedLength(getPrimaryAuthor(bookSignals));
-
-  return String(isbnDigitSum + publisherLength + yearTail + authorLength);
+function getSwitchboardCode() {
+  return "3004";
 }
 
-function getRecoveryCode(bookSignals) {
-  const intermediateCode = bookSignals.intermediateCode || getDerivedPuzzleAnswer(bookSignals);
-  const titleSignal = getFirstCompactedChar(bookSignals.title);
-  const publisherLength = getCompactedLength(bookSignals.publisher);
-
-  return `${intermediateCode}-${titleSignal}-${publisherLength}`;
+function getSwitchboardAnswers() {
+  return ["제이슨", "라이언", getSwitchboardCode()];
 }
 
 function hasRequiredBookSignals(bookSignals) {
@@ -495,34 +522,10 @@ function isMissionAnswerCorrect(mission, value, state) {
     return isValidIsbnDigits(value);
   }
 
-  if (mission.validator.type === "bookConfirm") {
-    const manualSignals = parseManualBookInput(value, state.bookSignals);
-
-    if (manualSignals) {
-      state.bookSignals = manualSignals;
-      return true;
-    }
-
-    if (!state.bookSignals.title || !hasRequiredBookSignals(state.bookSignals)) {
-      return false;
-    }
-
-    if (normalizedAnswer === normalizeComparableAnswer(state.bookSignals.title)) {
-      state.bookSignals.confirmed = true;
-      return true;
-    }
-
-    return false;
-  }
-
-  if (mission.validator.type === "bookMeta") {
-    const expected = state.bookSignals[mission.validator.field] || "";
-    return Boolean(expected) && normalizedAnswer === normalizeComparableAnswer(expected);
-  }
-
-  if (mission.validator.type === "derivedPuzzle") {
-    const expected = getDerivedPuzzleAnswer(state.bookSignals);
-    const isCorrect = normalizedAnswer === normalizeComparableAnswer(expected);
+  if (mission.validator.type === "switchboardCode") {
+    const expected = getSwitchboardCode();
+    const isCorrect = getSwitchboardAnswers()
+      .some((answer) => normalizedAnswer === normalizeComparableAnswer(answer));
 
     if (isCorrect) {
       state.bookSignals.intermediateCode = expected;
@@ -531,8 +534,15 @@ function isMissionAnswerCorrect(mission, value, state) {
     return isCorrect;
   }
 
-  if (mission.validator.type === "recoveryCode") {
-    return normalizedAnswer === normalizeComparableAnswer(getRecoveryCode(state.bookSignals));
+  if (mission.validator.type === "bookTraceCode") {
+    const expected = getBookTraceCode(state.bookSignals);
+    const isCorrect = normalizedAnswer === normalizeComparableAnswer(expected);
+
+    if (isCorrect) {
+      state.bookSignals.intermediateCode = expected;
+    }
+
+    return isCorrect;
   }
 
   return false;
@@ -561,63 +571,39 @@ function renderMissionDashboard() {
   const completedCount = state.completedMissionIds.length;
   const isAllComplete = completedCount >= missions.length;
   const currentMission = getCurrentMission(state);
-  const progressPercent = Math.round((completedCount / missions.length) * 100);
 
+  homeTabPanel.classList.remove("is-mission-waiting");
+  homeTabPanel.classList.add("is-mission-open");
   missionDashboardTitle.textContent = isAllComplete ? "마지막 페이지 복원 완료" : "잃어버린 책의 결말 복구 중";
   missionLevelText.textContent = String(Math.min(completedCount + 1, missions.length)).padStart(2, "0");
   paiMissionTitle.textContent = isAllComplete ? "픽식 기록 복원이 완료됐어요" : `${currentMission.fragment} 단서를 추적 중이에요`;
   paiMissionText.textContent = isAllComplete
     ? "이 책의 결말은 오늘 여러분이 만든 이야기로 저장됐어요."
     : currentMission.story;
-  missionProgressText.textContent = `${completedCount} / ${missions.length}`;
-  missionProgressBar.style.width = `${progressPercent}%`;
 
   renderActiveMission(state, isAllComplete);
-  renderMissionList(state);
+  renderCurrentMissionCard(currentMission, isAllComplete ? "완료" : "진행 중", isAllComplete ? "모든 미션이 완료됐어요." : currentMission.place);
 }
 
 function renderMissionWaiting() {
-  missionDashboardTitle.textContent = "미션 오픈 대기 중";
+  homeTabPanel.classList.add("is-mission-waiting");
+  homeTabPanel.classList.remove("is-mission-open");
+  missionDashboardTitle.textContent = "미션 진행 전";
   missionLevelText.textContent = "--";
-  paiMissionTitle.textContent = "아직 기록 수집가 모드가 잠겨 있어요";
-  paiMissionText.textContent = "13:30 프로그램 시작 때 파이가 메인 미션을 열어줄게요.";
-  missionProgressText.textContent = "대기 중";
-  missionProgressBar.style.width = "0%";
-  missionList.innerHTML = missions
-    .map((mission) => `
-      <article class="mission-card is-locked">
-        <span>${mission.chapter} · 대기</span>
-        <strong>${mission.title}</strong>
-        <p>프로그램 시작 후 확인할 수 있어요.</p>
-      </article>
-    `)
-    .join("");
-  activeMission.innerHTML = `
-    <div class="mission-waiting">
-      <span>STANDBY</span>
-      <strong>미션이 열리길 대기 중이에요</strong>
-      <p>점심 이후 13:30에 파이가 기록 수집가 모드를 열어줄 예정입니다.</p>
-      <p class="mission-status is-muted">지금은 일정과 박람회 정보를 먼저 확인해 주세요.</p>
-    </div>
-  `;
+  paiMissionTitle.textContent = "미션 준비중";
+  paiMissionText.textContent = "아직 미션 진행 전입니다.";
+  missionList.innerHTML = "";
+  activeMission.innerHTML = "";
 }
 
 function renderMissionIntro() {
+  homeTabPanel.classList.remove("is-mission-waiting");
+  homeTabPanel.classList.add("is-mission-open");
   missionDashboardTitle.textContent = "기록 수집가 모드 활성화";
   missionLevelText.textContent = "00";
   paiMissionTitle.textContent = "파이가 메인 미션을 준비했어요";
   paiMissionText.textContent = "시작 버튼을 누르면 사라진 결말의 조각을 복구하는 첫 미션이 열립니다.";
-  missionProgressText.textContent = "준비 완료";
-  missionProgressBar.style.width = "0%";
-  missionList.innerHTML = missions
-    .map((mission, index) => `
-      <article class="mission-card ${index === 0 ? "is-current" : "is-locked"}">
-        <span>${mission.chapter} · ${index === 0 ? "준비" : "잠김"}</span>
-        <strong>${mission.title}</strong>
-        <p>${index === 0 ? "파이 인트로가 끝나면 바로 시작돼요." : "앞 단계 완료 후 열립니다."}</p>
-      </article>
-    `)
-    .join("");
+  renderCurrentMissionCard(missions[0], "준비", "파이 인트로가 끝나면 바로 시작돼요.", "is-current");
   activeMission.innerHTML = `
     <div class="mission-intro">
       <div class="mission-intro-copy">
@@ -631,15 +617,40 @@ function renderMissionIntro() {
   `;
 }
 
+function renderCurrentMissionCard(mission, stateLabel, description, stateClass = "") {
+  missionList.innerHTML = `
+    <article class="mission-card ${stateClass}">
+      <span>${escapeHtml(mission.chapter)} · ${escapeHtml(stateLabel)}</span>
+      <strong>${escapeHtml(mission.title)}</strong>
+      <p>${escapeHtml(description)}</p>
+    </article>
+  `;
+}
+
 function renderActiveMission(state, isAllComplete) {
   if (isAllComplete) {
     activeMission.innerHTML = `
       <div class="active-mission-header">
         <span>COMPLETE</span>
-        <strong>잃어버린 책의 마지막 페이지</strong>
+        <strong>미션 클리어</strong>
       </div>
-      <p class="active-mission-story">축하합니다. 당신은 잃어버린 책의 마지막 페이지를 복원했습니다. 이 책의 결말은 사실 존재하지 않았습니다. 결말은 오늘 여러분이 만든 이야기입니다.</p>
-      <p class="mission-status is-success">모든 미션이 완료됐어요. 최종 집결지에서 함께 기록을 나눠요.</p>
+      <div class="mission-complete-summary" aria-label="미션 완료 안내">
+        <div class="mission-complete-pai">
+          <img src="assets/pai-cutout-clean.png" alt="파이" />
+          <div>
+            <span>파이</span>
+            <strong>모든 미션을 클리어했어요! 축하해요!</strong>
+            <p>데릭에게 픽챗 혹은 콜리스로 미션 완료를 알려주세요.</p>
+          </div>
+        </div>
+        <div class="mission-next-schedule" aria-label="다음 타임테이블">
+          <span>다음 타임테이블</span>
+          <strong>15:30 - 16:30</strong>
+          <p>카페 모임 및 소감 공유</p>
+          <small>국제도서전 관람 후기를 함께 나눠요.</small>
+          <small>모이는 장소는 데릭이 알려줄 예정이에요.</small>
+        </div>
+      </div>
     `;
     return;
   }
@@ -649,62 +660,91 @@ function renderActiveMission(state, isAllComplete) {
   const savedAnswer = state.answers[mission.id] || "";
   const successPrefixes = ["좋아", "조각", "ISBN", "책", "출판사", "중간", "마지막"];
   const messageClass = successPrefixes.some((prefix) => state.message.startsWith(prefix)) ? " is-success" : "";
+  const missionControl = mission.validator.type === "bookConfirm"
+    ? `
+      <div class="mission-answer-dock">
+        <div class="mission-actions">
+          <button class="primary-button" type="button" data-book-confirm>확인</button>
+          <button class="ghost-button" type="button" data-book-retry>다시입력</button>
+        </div>
+      </div>
+    `
+    : `
+      <div class="mission-answer-dock">
+        <form class="mission-form" id="missionForm">
+          <label for="missionAnswer">정답 입력</label>
+          <input id="missionAnswer" name="missionAnswer" type="text" autocomplete="off" placeholder="${escapeAttribute(mission.placeholder)}" value="${escapeAttribute(savedAnswer)}" />
+          <div class="mission-actions">
+            <button class="ghost-button" type="button" data-mission-hint="${mission.id}">힌트</button>
+            <button class="primary-button" type="submit">확인</button>
+          </div>
+        </form>
+      </div>
+    `;
 
   activeMission.innerHTML = `
     <div class="active-mission-header">
       <span>${escapeHtml(mission.chapter)}</span>
       <strong>${escapeHtml(mission.title)}</strong>
     </div>
-    <div class="mission-meta" aria-label="현재 미션 정보">
-      <span>${escapeHtml(mission.place)}</span>
-      <span>${escapeHtml(mission.time)}</span>
-    </div>
-    ${renderBookSignalPanel(state, mission)}
-    <p class="active-mission-story">${escapeHtml(mission.story)}</p>
-    <p class="active-mission-prompt">${escapeHtml(mission.prompt)}</p>
-    <form class="mission-form" id="missionForm">
-      <label for="missionAnswer">정답 입력</label>
-      <input id="missionAnswer" name="missionAnswer" type="text" autocomplete="off" placeholder="${escapeAttribute(mission.placeholder)}" value="${escapeAttribute(savedAnswer)}" />
-      <div class="mission-actions">
-        <button class="ghost-button" type="button" data-mission-hint="${mission.id}">힌트</button>
-        <button class="primary-button" type="submit">확인</button>
+    <div class="pai-stage-guide" aria-label="파이 미션 가이드">
+      <img src="assets/pai-cutout-clean.png" alt="" />
+      <div>
+        <span>파이 가이드</span>
+        <p>${escapeHtml(mission.story)}</p>
       </div>
-    </form>
+    </div>
+    <p class="active-mission-prompt">${escapeHtml(mission.prompt)}</p>
+    ${renderMissionCluePanel(mission)}
+    ${renderBookSignalPanel(state, mission)}
+    ${missionControl}
     <p class="mission-hint${isHintVisible ? "" : " is-hidden"}" id="missionHint">${escapeHtml(mission.hint)}</p>
     <p class="mission-status${messageClass}" aria-live="assertive">${escapeHtml(state.message)}</p>
   `;
 }
 
-function renderMissionList(state) {
-  missionList.innerHTML = missions
-    .map((mission, index) => {
-      const isComplete = state.completedMissionIds.includes(mission.id);
-      const isCurrent = index === state.currentMissionIndex && !isComplete;
-      const isLocked = index > state.currentMissionIndex;
-      const stateLabel = isComplete ? "완료" : isCurrent ? "진행 중" : "잠김";
+function renderMissionCluePanel(mission) {
+  if (!Array.isArray(mission.clueRows) || mission.clueRows.length === 0) {
+    return "";
+  }
 
-      return `
-        <article class="mission-card ${isComplete ? "is-complete" : ""} ${isCurrent ? "is-current" : ""} ${isLocked ? "is-locked" : ""}">
-          <span>${mission.chapter} · ${stateLabel}</span>
-          <strong>${mission.title}</strong>
-          <p>${mission.place}</p>
-        </article>
-      `;
-    })
-    .join("");
+  return `
+    <div class="mission-clue-panel" aria-label="교환대 기록">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">구분</th>
+            <th scope="col">전화번호</th>
+            <th scope="col">내선번호</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${mission.clueRows
+            .map((row) => `
+              <tr>
+                <th scope="row">${escapeHtml(row[0])}</th>
+                <td>${escapeHtml(row[1])}</td>
+                <td>${escapeHtml(row[2])}</td>
+              </tr>
+            `)
+            .join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function renderBookSignalPanel(state, mission) {
   const bookSignals = state.bookSignals;
 
-  if (mission.validator.type === "isbnLookup" || (!bookSignals.title && !bookSignals.manualRequired)) {
+  if (mission.validator.type !== "bookConfirm" || (!bookSignals.title && !bookSignals.manualRequired)) {
     return "";
   }
 
   const authorText = bookSignals.authors.length ? bookSignals.authors.join(", ") : "미확정";
   const statusText = bookSignals.manualRequired
-    ? "ISBN 조회 결과가 없거나 정보가 부족해요. 직접 책 정보를 입력해 주세요."
-    : "파이가 현재 저장한 책 정보입니다.";
+    ? "ISBN 조회 결과가 없거나 정보가 부족해요. 다시입력으로 ISBN을 확인해 주세요."
+    : "조회된 책 정보입니다.";
 
   return `
     <div class="book-signal-panel" aria-label="저장된 책 정보">
@@ -726,10 +766,6 @@ function renderBookSignalPanel(state, mission) {
           <dt>출간연도</dt>
           <dd>${escapeHtml(bookSignals.publishedYear || "미확정")}</dd>
         </div>
-        <div>
-          <dt>ISBN 끝 4자리</dt>
-          <dd>${escapeHtml(bookSignals.isbnLast4 || "미확정")}</dd>
-        </div>
       </dl>
     </div>
   `;
@@ -742,6 +778,37 @@ function markMissionComplete(state, mission) {
 
   state.currentMissionIndex = Math.min(state.currentMissionIndex + 1, missions.length);
   state.message = mission.success;
+}
+
+function confirmFetchedBook() {
+  const state = readMissionState();
+  const mission = getCurrentMission(state);
+
+  if (mission.validator.type !== "bookConfirm" || !hasRequiredBookSignals(state.bookSignals)) {
+    state.message = "확정할 책 정보가 아직 없어요. ISBN을 다시 입력해 주세요.";
+    writeMissionState(state);
+    renderMissionDashboard();
+    return;
+  }
+
+  state.bookSignals.confirmed = true;
+  state.answers[mission.id] = state.bookSignals.title;
+  markMissionComplete(state, mission);
+  writeMissionState(state);
+  renderMissionDashboard();
+}
+
+function retryIsbnLookup() {
+  const state = readMissionState();
+
+  state.completedMissionIds = state.completedMissionIds.filter((missionId) => missionId !== "mission-01" && missionId !== "mission-02");
+  delete state.answers["mission-01"];
+  delete state.answers["mission-02"];
+  state.currentMissionIndex = 0;
+  state.bookSignals = getDefaultBookSignals();
+  state.message = "ISBN을 다시 입력해 주세요.";
+  writeMissionState(state);
+  renderMissionDashboard();
 }
 
 async function submitIsbnLookupMission(state, mission, answer) {
@@ -773,8 +840,18 @@ async function submitIsbnLookupMission(state, mission, answer) {
     state.bookSignals = createBookSignalsFromBook(book, isbnDigits);
 
     if (!hasRequiredBookSignals(state.bookSignals)) {
-      state.bookSignals.manualRequired = true;
-      state.message = "책 정보 일부가 비어 있어요. 다음 단계에서 직접 정보를 보완해 주세요.";
+      state.bookSignals = {
+        ...getDefaultBookSignals(),
+        lookupStatus: "incomplete",
+        manualRequired: true,
+        isbn: answer,
+        isbnDigits,
+        isbnLast4: isbnDigits.slice(-4)
+      };
+      state.message = "책 정보 일부가 비어 있어요. ISBN을 다시 확인해 주세요.";
+      writeMissionState(state);
+      renderMissionDashboard();
+      return;
     } else {
       state.message = mission.success;
     }
@@ -787,7 +864,10 @@ async function submitIsbnLookupMission(state, mission, answer) {
       isbnDigits,
       isbnLast4: isbnDigits.slice(-4)
     };
-    state.message = "ISBN 조회 결과가 없어요. 다음 단계에서 책 정보를 직접 입력해 주세요.";
+    state.message = "ISBN 조회 결과가 없어요. ISBN을 다시 확인해 주세요.";
+    writeMissionState(state);
+    renderMissionDashboard();
+    return;
   }
 
   if (!state.completedMissionIds.includes(mission.id)) {
@@ -818,16 +898,16 @@ async function submitMissionAnswer(event) {
     return;
   }
 
-  if (mission.validator.type === "bookConfirm") {
-    state.answers[mission.id] = state.bookSignals.title;
-  } else if (mission.validator.type === "bookMeta") {
-    state.answers[mission.id] = state.bookSignals[mission.validator.field] || answer;
-  } else {
-    state.answers[mission.id] = answer;
-  }
+  state.answers[mission.id] = answer;
 
   markMissionComplete(state, mission);
   writeMissionState(state);
+
+  if (state.completedMissionIds.length >= missions.length) {
+    showMissionCompletionOpening();
+    return;
+  }
+
   renderMissionDashboard();
 }
 
@@ -844,7 +924,7 @@ function revealMissionHint(missionId) {
 }
 
 function getCurrentScene() {
-  return openingScenes[currentSceneIndex];
+  return activeOpeningScenes[currentSceneIndex];
 }
 
 function updateSceneMeta(scene) {
@@ -935,6 +1015,19 @@ function goToNextScene() {
     return;
   }
 
+  if (scene.action === "missionStart") {
+    markIntroCompleted();
+    markMissionIntroSeen();
+    showHomeScreen();
+    return;
+  }
+
+  if (scene.action === "missionComplete") {
+    markMissionCompletionSeen();
+    showHomeScreen();
+    return;
+  }
+
   currentSceneIndex += 1;
   renderScene();
 }
@@ -951,6 +1044,34 @@ function goToPreviousScene() {
 function resetOpening() {
   stopTyping();
   currentSceneIndex = 0;
+  activeOpeningScenes = openingScenes;
+  homeScreen.classList.add("is-hidden");
+  openingScreen.classList.remove("is-hidden");
+  renderScene();
+}
+
+function shouldShowMissionOpening() {
+  return isMissionUnlocked() && !hasSeenMissionIntro();
+}
+
+function shouldShowMissionCompletionOpening() {
+  const state = readMissionState();
+  return isMissionUnlocked() && state.completedMissionIds.length >= missions.length && !hasSeenMissionCompletion();
+}
+
+function showMissionOpening() {
+  stopTyping();
+  currentSceneIndex = 0;
+  activeOpeningScenes = missionOpeningScenes;
+  homeScreen.classList.add("is-hidden");
+  openingScreen.classList.remove("is-hidden");
+  renderScene();
+}
+
+function showMissionCompletionOpening() {
+  stopTyping();
+  currentSceneIndex = 0;
+  activeOpeningScenes = missionCompletionScenes;
   homeScreen.classList.add("is-hidden");
   openingScreen.classList.remove("is-hidden");
   renderScene();
@@ -1170,11 +1291,23 @@ if (activeMission) {
 
   activeMission.addEventListener("click", (event) => {
     const introStartButton = event.target instanceof Element ? event.target.closest("[data-mission-intro-start]") : null;
+    const bookConfirmButton = event.target instanceof Element ? event.target.closest("[data-book-confirm]") : null;
+    const bookRetryButton = event.target instanceof Element ? event.target.closest("[data-book-retry]") : null;
     const hintButton = event.target instanceof Element ? event.target.closest("[data-mission-hint]") : null;
 
     if (introStartButton) {
       markMissionIntroSeen();
       renderMissionDashboard();
+      return;
+    }
+
+    if (bookConfirmButton) {
+      confirmFetchedBook();
+      return;
+    }
+
+    if (bookRetryButton) {
+      retryIsbnLookup();
       return;
     }
 
@@ -1226,10 +1359,15 @@ window.addEventListener("keydown", (event) => {
   }
 });
 
-if (hasCompletedIntro()) {
-  unlockMissionFromStartLink();
+unlockMissionFromStartLink();
+
+if (shouldShowMissionOpening()) {
+  showMissionOpening();
+} else if (shouldShowMissionCompletionOpening()) {
+  showMissionCompletionOpening();
+} else if (hasCompletedIntro()) {
   showHomeScreen();
 } else {
-  unlockMissionFromStartLink();
+  activeOpeningScenes = openingScenes;
   renderScene();
 }
