@@ -194,6 +194,7 @@ let visibleText = "";
 let typingTimer = null;
 let isTyping = false;
 let lastThemeModalFocus = null;
+let lockedThemeModalScrollY = 0;
 let lastFairTourFocus = null;
 let currentFairTourIndex = 0;
 
@@ -998,8 +999,11 @@ function openThemeModal() {
   }
 
   lastThemeModalFocus = document.activeElement;
+  lockedThemeModalScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  document.documentElement.style.setProperty("--modal-scroll-y", `${lockedThemeModalScrollY}px`);
   themeModal.hidden = false;
   themeModal.classList.remove("is-hidden");
+  document.documentElement.classList.add("has-modal-open");
   document.body.classList.add("has-modal-open");
   const closeButton = themeModal.querySelector(".theme-modal-close");
 
@@ -1015,7 +1019,10 @@ function closeThemeModal() {
 
   themeModal.hidden = true;
   themeModal.classList.add("is-hidden");
+  document.documentElement.classList.remove("has-modal-open");
   document.body.classList.remove("has-modal-open");
+  document.documentElement.style.removeProperty("--modal-scroll-y");
+  window.scrollTo(0, lockedThemeModalScrollY);
 
   if (lastThemeModalFocus && typeof lastThemeModalFocus.focus === "function") {
     lastThemeModalFocus.focus();
